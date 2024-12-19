@@ -4,19 +4,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class LibraryManagerTest {
+class LibraryManagerTest {
 
   @Mock
   private NotificationService notificationService;
@@ -121,12 +118,17 @@ public class LibraryManagerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(ints = {0, 1, 2, 3, 13, 169})
-  void calculateDynamicLateFeeIsBestsellerIsPremium(int overdueDays) {
+  @CsvSource({
+      "0, 0",
+      "1, 0.6",
+      "2, 1.2",
+      "3, 1.8",
+      "13, 7.8",
+      "169, 101.4"
+  })
+  void calculateDynamicLateFeeIsBestsellerIsPremium(int overdueDays, double fee) {
     assertEquals(
-        BigDecimal.valueOf(overdueDays * 0.5 * 1.5 * 0.8)
-            .setScale(2, RoundingMode.HALF_UP)
-            .doubleValue(),
+        fee,
         libraryManager.calculateDynamicLateFee(overdueDays, true, true));
 
   }
